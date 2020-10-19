@@ -1,0 +1,160 @@
+---
+title: 'Assignment 2: Data Extraction'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Assignment Start: 12:01 AM Oct. 23
+#### Assignment End: 11:59 PM Nov. 6
+
+Part I
+
+1. Describe the design of the `cathedral.xml` file in terms of the `dataset` and `variable` elements and their meta-data.
+
+Put your text answer here.
+
+2. Describe how the DTD file `dataset.dtd` is invoked. Explain the `<!ELEMENT>` declaration for each type of element in the XML design. Explain the `<!ATTLIST>` declaration for every element in the design that has one or more attributes.
+
+Put your text answer here.
+
+3. Parse `cathedral.xml` using the `xmlParse` function in the `XML` package.
+
+```{r parse}
+library(XML)
+
+# Put your R code here.
+
+##parses it
+parsedCathedral<-xmlParse("cathedral.xml")
+
+##prints class from xml
+class(parsedCathedral)
+```
+Explain what the `xmlParse` function does.
+Put your text answer here.
+
+##xmlParse function allows us to break down the xml into smaller parts so we can now work with and manipulate the data. The variables can now be extracted using the getNodeSet function and formed into a data frame.
+
+4. Extract and print the variable names from the file.
+
+```{r var}
+# Put your R code here.
+
+##extracts the variables
+extractCathedral<- unlist(getNodeSet(parsedCathedral, "/dataset/variable/@name"),use.names = FALSE)
+
+##prints the variables
+extractCathedral
+
+```
+Explain what the function `getNodeSet` does using the argument `/dataset/variable/@name`. 
+Put your text answer here.
+## the getNodeSet function allows us to pull the nodes from the parsed XML, using that argument it pulls the variable names from the XML dataset cathedral. Gets names from the attributes of variables.
+
+5. Extract and print the `cathedral` names (labels) from the file.
+
+```{r labels}
+# Put your R code here.
+extractCathedralName<- unlist(getNodeSet(parsedCathedral, "/dataset/variable[1]/value/text()"),use.names = FALSE)
+
+##prints the different names
+xmlValue(extractCathedralName)
+
+##cant use this bc is not numeric
+#sapply(extractCathedralName, mean)
+```
+Explain what the function `getNodeSet` does using the argument `/dataset/variable[1]/value/text()`. To extract values (`cathedral` names) look at the function `xmlValue` as applied (`sapply`)  to the result of `getNodeSet`and similarly for questions 6 and 7.
+
+Put your text answer here.
+
+6. Extract and print the cathedral `style` variable from the file.
+
+```{r style}
+# Put your R code here.
+extractCathedralStyle<- unlist(getNodeSet(parsedCathedral, "/dataset/variable[2]/value/text()"),use.names = FALSE)
+
+xmlValue(extractCathedralStyle)
+
+##cant use this, not numeric
+#sapply(extractCathedralStyle,mean)
+
+```
+
+7. Extract and print the cathedral `height` and `length` variables from the file.
+
+```{r numvar}
+# Put your R code here.
+extractCathedralHeight<- unlist(getNodeSet(parsedCathedral, "/dataset/variable[3]/value"),use.names = FALSE)
+
+newCathedralHeight<-xmlValue(extractCathedralHeight)
+
+CathedralHeight<-as.numeric(as.character(unlist(newCathedralHeight)))
+
+str(CathedralHeight)
+CathedralHeightMean<-sapply(CathedralHeight,mean)
+CathedralHeightMean
+
+
+extractCathedralLength<- unlist(getNodeSet(parsedCathedral, "/dataset/variable[4]/value"),use.names = FALSE)
+
+newCathedralLength<-xmlValue(extractCathedralLength)
+
+CathedralLength<-as.numeric(as.character(unlist(newCathedralLength)))
+
+str(CathedralLength)
+CathedralLengthMean<-sapply(CathedralLength,mean)
+CathedralLengthMean
+```
+
+8. Construct and then print a `data.frame` called `cathedral_df` with `cathedral` as the first column, `style` (coerced to a factor) as the second column, `height` (coerced to numeric) as the third column, etc. Write `cathedral_df` to your local filesystem, i.e., in your assignment 2 directory of `gbef4001`, in JSON using a `pretty` format, and call it `cathedral.json`.
+
+```{r df}
+library(jsonlite)
+# Put your R code here.
+```
+
+9. Read `cathedral.json` from your local filesystem into R, which you can call `cathedral_jdf`. What do you need to do to ensure `cathedral_jdf` is a `data.frame` and not a list? Using this `data.frame`, plot `length` vs. `height` and label (`g` or `r`) points by `style`. You will need to convert `style` to a factor and may need to convert `length` and `height` to numeric vectors. Hint: look at the `text` function and its `labels` argument. Fit separate regressions with `height` as the response varaible and `length` as the predictor, and superimpose them on the plot. (Note: this is actually an analysis of covariance with unequal slopes.)
+
+```{r scatplot}
+# Put your R code here.
+```
+Describe group differences in this plot.
+
+Put your text answer here.
+
+Part II  
+
+As an example of a practical use of webscraping, imagine a scenario in which we wanted to know the 10 most frequent posters to the R-help listserve for March 2016.
+
+Use `getURL` to retrieve the data from ETHZ secure site. 
+```{r}
+library("RCurl")
+mar16 <- getURL("https://stat.ethz.ch/pipermail/r-help/2016-March/date.html",
+                ssl.verifypeer = FALSE)
+```
+
+10. Use `htmlParse` to parse the `mar16` file. Is the argument `asText` needed?
+```{r}
+# Put your R code here.
+```
+
+11. Using regular expressions, pull out the author lines and delete the unwanted characters in these lines. Use regular expressions or as in 5., consider the use of `xmlValue` with `sapply`. Then, look at `gsub`.
+```{r}
+# Pull out the appropriate lines
+# Put your R code here.
+
+# Delete unwanted characters in the lines pulled out
+# Put your R code here.
+```
+
+12. List the 10 most frequent posters. Look at the function `table`.
+```{r}
+# List the ten most frequent posters:
+# Put your R code here.
+```
+
